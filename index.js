@@ -1,14 +1,11 @@
-import dns from "node:dns";
+import dns from "dns";
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
-
 
 import dotenv from "dotenv";
 dotenv.config();
 
 import connectDB from "./src/config/db.js";
 connectDB();
-
-
 
 import express from "express";
 
@@ -22,4 +19,3 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
- 
