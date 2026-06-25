@@ -4,13 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-   "serve": "node index.js",
-   "dev": "node --watch index.js"
+    "serve": "node index.js",
+    "dev": "node --watch index.js"
   },
   "author": "Tzvetomir Vesselinov Dochev",
   "license": "MIT",
   "type": "module",
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^5.2.1"
   }
 }
