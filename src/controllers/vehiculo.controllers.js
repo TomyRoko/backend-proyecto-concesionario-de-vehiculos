@@ -2,7 +2,7 @@ import Vehiculo from "../models/vehiculo.js";
 
 export const getVehiculos = async (req, res) => {
   try {
-    const vehiculos = (await Vehiculo.find()).select("-descripcion -__v");
+    const vehiculos = (await Vehiculo.find());
     res.json(vehiculos);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener los vehículos" });
