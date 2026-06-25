@@ -9,12 +9,16 @@ connectDB();
 
 import express from "express";
 
+import vehiculoRoutes from "./src/routes/vehiculo.router.js";
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.get("/", (req, res) => {
   res.json({ message: "Bienvenido a la API de concesionario de vehículos" });
 });
+
+app.use("/api/vehiculos", vehiculoRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
