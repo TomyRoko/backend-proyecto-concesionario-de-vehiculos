@@ -12,8 +12,10 @@ import express from "express";
 import vehiculoRoutes from "./src/routes/vehiculo.router.js";
 
 const app = express();
+
 const PORT = process.env.PORT || 3001;
 
+app.use(express.json());
 app.get("/", (req, res) => {
   res.json({ message: "Bienvenido a la API de concesionario de vehículos" });
 });
