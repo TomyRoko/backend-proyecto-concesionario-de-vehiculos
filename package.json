@@ -1,0 +1,23 @@
+{
+  "name": "backend-proyecto-concesionario-de-vehiculos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "node index.js",
+    "dev": "node --watch index.js",
+    "seed": "node src/seeders/vehiculo.seeder.js"
+  },
+  "author": "Tzvetomir Vesselinov Dochev",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.2"
+  }
+}
