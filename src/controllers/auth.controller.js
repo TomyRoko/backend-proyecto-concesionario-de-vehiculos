@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
   try {
@@ -46,5 +47,51 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ message: "Error al registrar el usuario" });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const password = String(req.body.password || "");
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Faltan campos obligatorios" });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Correo electrónico inválido" });
+    }
+
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "La contraseña debe tener al menos 6 caracteres" });
+    }
+    const user = await User.findOne({ email });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!user || !isPasswordValid) {
+      return res
+        .status(400)
+        .json({ message: "Correo electrónico o contraseña incorrectos" });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.json({
+      message: "Inicio de sesión exitoso",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        admin: user.admin,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Error al iniciar sesión" });
   }
 };
