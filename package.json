@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "node index.js",
+    "start": "node index.js",
     "dev": "node --watch index.js",
     "seed": "node src/seeders/vehiculo.seeder.js"
   },
@@ -12,7 +12,6 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
