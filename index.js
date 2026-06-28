@@ -11,6 +11,7 @@ import express from "express";
 import cors from "cors";
 
 import vehiculoRoutes from "./src/routes/vehiculo.router.js";
+import authRoutes from "./src/routes/auth.router.js";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/vehiculos", vehiculoRoutes);
+app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
