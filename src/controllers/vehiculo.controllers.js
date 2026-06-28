@@ -1,4 +1,4 @@
-import Vehiculo from "../models/vehiculo.js";
+import Vehiculo from "../models/Vehiculo.js";
 
 export const createVehiculo = async (req, res) => {
   try {
@@ -7,27 +7,57 @@ export const createVehiculo = async (req, res) => {
       marca,
       modelo,
       descripcion = "",
+      foto,
       anio,
       precio,
       combustible,
       kilometraje,
     } = req.body;
-    if (!precio || isNaN(precio) || precio < 0) {
+
+    const anioNumber = Number(anio);
+    const precioNumber = Number(precio);
+    const kilometrajeNumber = Number(kilometraje);
+
+    if (!Number.isFinite(precioNumber) || precioNumber < 0) {
       return res.status(400).json({ message: "Precio inválido" });
     }
 
-    if (!kilometraje || isNaN(kilometraje) || kilometraje < 0) {
+    if (!Number.isFinite(kilometrajeNumber) || kilometrajeNumber < 0) {
       return res.status(400).json({ message: "Kilometraje inválido" });
     }
 
-    if (!categoria || !marca || !modelo || !anio || !combustible) {
+    if (!Number.isFinite(anioNumber) || anioNumber < 1900) {
+      return res.status(400).json({ message: "Año inválido" });
+    }
+
+    if (!categoria || !marca || !modelo || !combustible || !foto) {
       return res.status(400).json({ message: "Faltan campos obligatorios" });
     }
 
-    const vehiculo = await Vehiculo.create(req.body);
+    if (!req.user?.id) {
+      return res.status(401).json({ message: "Usuario no autenticado" });
+    }
+
+    const vehiculoData = {
+      categoria,
+      marca,
+      modelo,
+      descripcion,
+      foto,
+      anio: anioNumber,
+      precio: precioNumber,
+      combustible,
+      kilometraje: kilometrajeNumber,
+      createdBy: req.user.id,
+    };
+
+    const vehiculo = await Vehiculo.create(vehiculoData);
     res.status(201).json(vehiculo);
   } catch (error) {
-    res.status(500).json({ message: "Error al crear el vehículo" });
+    res.status(500).json({
+      message: "Error al crear el vehículo",
+      error: error.message,
+    });
   }
 };
 
@@ -56,26 +86,52 @@ export const getVehiculoById = async (req, res) => {
 export const updateVehiculo = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!precio || isNaN(precio) || precio < 0) {
+    const {
+      categoria,
+      marca,
+      modelo,
+      anio,
+      precio,
+      combustible,
+      kilometraje,
+      foto,
+    } = req.body;
+
+    const anioNumber = Number(anio);
+    const precioNumber = Number(precio);
+    const kilometrajeNumber = Number(kilometraje);
+
+    if (!Number.isFinite(precioNumber) || precioNumber < 0) {
       return res.status(400).json({ message: "Precio inválido" });
     }
 
-    if (!kilometraje || isNaN(kilometraje) || kilometraje < 0) {
+    if (!Number.isFinite(kilometrajeNumber) || kilometrajeNumber < 0) {
       return res.status(400).json({ message: "Kilometraje inválido" });
     }
 
-    if (!categoria || !marca || !modelo || !anio || !combustible) {
+    if (!Number.isFinite(anioNumber) || anioNumber < 1900) {
+      return res.status(400).json({ message: "Año inválido" });
+    }
+
+    if (!categoria || !marca || !modelo || !combustible || !foto) {
       return res.status(400).json({ message: "Faltan campos obligatorios" });
     }
 
-    const vehiculo = await Vehiculo.findByIdAndUpdate(id, req.body, {
+    const updateData = {
+      ...req.body,
+      anio: anioNumber,
+      precio: precioNumber,
+      kilometraje: kilometrajeNumber,
+    };
+
+    const vehiculo = await Vehiculo.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
     if (!vehiculo) {
       return res.status(404).json({ message: "Vehículo no encontrado" });
     }
-    
+
     res.json(vehiculo);
   } catch (error) {
     res.status(500).json({ message: "Error al actualizar el vehículo" });
