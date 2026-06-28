@@ -1,132 +1,293 @@
-# backend-proyecto-concesionario-de-vehiculos - Tzvetomir Vesselinov Dochev
+# Backend Proyecto Concesionario de Vehiculos
 
-## Seeders
+API REST para gestion de usuarios y vehiculos, con autenticacion JWT y control de permisos por rol admin.
 
-```bash
-npm run seed
+Autor: Tzvetomir Vesselinov Dochev
+
+## Tecnologias
+
+- Node.js
+- Express
+- MongoDB + Mongoose
+- JWT (jsonwebtoken)
+- bcryptjs
+- dotenv
+- cors
+
+## Caracteristicas
+
+- Registro e inicio de sesion de usuarios.
+- Password hasheada con bcryptjs.
+- Autenticacion con token JWT.
+- Middleware de proteccion por token.
+- Middleware de autorizacion para admin.
+- CRUD de vehiculos.
+- Solo usuarios admin pueden crear, editar y eliminar vehiculos.
+- Los vehiculos guardan el usuario que los creo con el campo createdBy.
+- Seeder para cargar vehiculos de ejemplo.
+
+## Estructura del proyecto
+
+```text
+.
+|- index.js
+|- package.json
+|- .env-example
+|- src/
+   |- config/
+   |  |- db.js
+   |- controllers/
+   |  |- auth.controller.js
+   |  |- vehiculo.controllers.js
+   |- middlewares/
+   |  |- auth.middleware.js
+   |  |- admin.middleware.js
+   |- models/
+   |  |- User.js
+   |  |- Vehiculo.js
+   |- routes/
+   |  |- auth.router.js
+   |  |- vehiculo.router.js
+   |- seeders/
+      |- vehiculo.seeder.js
 ```
 
-## Instalación
+## Requisitos previos
 
-1. Clona el repositorio
+- Node.js 18 o superior.
+- MongoDB Atlas o MongoDB local.
+
+## Instalacion local
+
+1. Clonar repositorio.
 
 ```bash
-git clone <repositori_url>
-```
-
-2. Navega al directorio del proyecto
-
-1bash
+git clone <URL_DEL_REPOSITORIO>
 cd backend-proyecto-concesionario-de-vehiculos
 ```
 
-3. Cambiar al branch `main` (si no estás ya en él)
-
-```bash
-git switch dev
-```
-
-4. Instala las dependencias
+2. Instalar dependencias.
 
 ```bash
 npm install
 ```
 
-5. Crea un archivo `.env` en la raíz del proyecto y agrega las siguientes variables de entorno:
+3. Crear archivo .env a partir de .env-example.
 
+En Linux o macOS:
+
+```bash
+cp .env-example .env
 ```
-cp .env.example .env
+
+En Windows PowerShell:
+
+```powershell
+Copy-Item .env-example .env
 ```
 
-    Luego , abre el archivo `.env` y agrega tu configuracion personalizada, como el puerto y la URI de MongoDB.
+4. Completar variables de entorno en .env.
 
-6. Inicia el servidor
+```env
+PORT=3001
+MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/concesionario
+JWT_SECRET=tu_clave_super_secreta
+```
+
+5. Iniciar servidor.
 
 ```bash
 npm start
 ```
 
-Para desarollo con recarga automática, puedes usar:
+Modo desarrollo (recarga automatica):
 
 ```bash
 npm run dev
 ```
 
-## Uso
+## Scripts
 
-una vez que el servidor esté en funcionamiento, puedes acceder a la API a través de `http://localhost:3000` (o el puerto que hayas configurado en tu archivo `.env`).
+- npm start: inicia la API.
+- npm run dev: inicia en modo watch.
+- npm run seed: inserta vehiculos de ejemplo.
 
-### Obtener todos los vehículos
+## Conexion a base de datos
+
+La conexion se configura en src/config/db.js con Mongoose usando la variable MONGODB_URI.
+
+## Modelo de datos
+
+### User
+
+- name: string, requerido.
+- email: string, requerido, unico.
+- password: string, requerido, minimo 6.
+- admin: boolean, default false.
+- createdAt, updatedAt: automaticos.
+
+### Vehiculo
+
+- categoria: string, requerido.
+- marca: string, requerido.
+- modelo: string, requerido.
+- descripcion: string, opcional.
+- foto: string, requerido.
+- anio: number, requerido.
+- precio: number, requerido.
+- combustible: string, requerido.
+- kilometraje: number, requerido.
+- createdBy: ObjectId (referencia a User).
+- createdAt, updatedAt: automaticos.
+
+## Autenticacion y autorizacion
+
+- El login devuelve un JWT.
+- En rutas protegidas, enviar header Authorization con formato:
+
+```text
+Bearer TU_TOKEN
+```
+
+- Reglas de acceso en vehiculos:
+  - GET /api/vehiculos y GET /api/vehiculos/:id son publicas.
+  - POST /api/vehiculos, PUT /api/vehiculos/:id y DELETE /api/vehiculos/:id requieren token valido y usuario admin.
+
+## Endpoints
+
+Base URL local:
+
+```text
+http://localhost:3001
+```
+
+### Health
+
+- GET /
+
+Respuesta:
+
+```json
+{
+  "message": "Bienvenido a la API de concesionario de vehiculos"
+}
+```
+
+### Auth
+
+- POST /api/auth/register
+- POST /api/auth/login
+
+Ejemplo register:
+
+```json
+{
+  "name": "Admin",
+  "email": "admin@demo.com",
+  "password": "123456"
+}
+```
+
+Ejemplo login:
+
+```json
+{
+  "email": "admin@demo.com",
+  "password": "123456"
+}
+```
+
+Respuesta login:
+
+```json
+{
+  "message": "Inicio de sesion exitoso",
+  "token": "<JWT>",
+  "user": {
+    "id": "...",
+    "name": "Admin",
+    "email": "admin@demo.com",
+    "admin": false
+  }
+}
+```
+
+### Vehiculos
+
+- GET /api/vehiculos
+- GET /api/vehiculos/:id
+- POST /api/vehiculos (admin)
+- PUT /api/vehiculos/:id (admin)
+- DELETE /api/vehiculos/:id (admin)
+
+Ejemplo crear vehiculo (POST /api/vehiculos):
+
+```json
+{
+  "categoria": "SUV",
+  "marca": "Toyota",
+  "modelo": "RAV4",
+  "descripcion": "Unico dueno",
+  "foto": "https://ejemplo.com/rav4.jpg",
+  "anio": 2021,
+  "precio": 27500,
+  "combustible": "Nafta",
+  "kilometraje": 45000
+}
+```
+
+Validaciones principales en alta y actualizacion:
+
+- precio debe ser numero y mayor o igual a 0.
+- kilometraje debe ser numero y mayor o igual a 0.
+- anio debe ser numero y mayor o igual a 1900.
+- categoria, marca, modelo, combustible y foto son obligatorios.
+
+## Seeder
+
+Para insertar datos de ejemplo:
 
 ```bash
-GET /api/vehiculos
+npm run seed
 ```
 
-response:
+## Deploy en Render
 
-status: 200 OK
+Configuracion recomendada para Web Service:
 
-```json
-[
-  {
-    "_id": "6a3d2...",
-    "categoria": "Berlina",
-    "marca": "Audi",
-    "modelo": "A4",
-    "descripcion": "El Audi A4 es un sedán de lujo que combina elegancia, tecnología avanzada y un rendimiento excepcional. Con su diseño aerodinámico y su interior refinado, ofrece una experiencia de conducción cómoda y sofisticada.",
-    "foto": "https://picsum.photos/seed/vehiculo-1/200/150",
-    "anio": 2024,
-    "precio": 38900,
-    "combustible": "Gasolina",
-    "kilometraje": 0,
-    "__v": 0,
-    "createdAt": "2026-06-25T13:07:23.123Z",
-    "updatedAt": "2026-06-25T13:07:23.123Z"
-  },
+- Build Command: npm install
+- Start Command: npm start
 
-]
-```
+Variables de entorno requeridas:
 
-estatus: 404 Not Found
+- MONGODB_URI
+- JWT_SECRET
+- PORT (opcional, Render suele inyectarlo)
 
-```json
-{
-  "error": "No se encontraron vehículos"
-}
-```
+## Errores comunes y soluciones
 
-### Obtener un vehículo por ID
+1. Error en deploy por start command
 
-```bash
-GET /api/vehiculos/:id
-```
+- Causa: comando mal escrito como npm stard.
+- Solucion: usar npm start.
 
-response:
+2. Error de acceso al crear vehiculos
 
-status: 200 OK
+- Causa: usuario sin admin true.
+- Solucion: usar un usuario admin para POST, PUT y DELETE de vehiculos.
 
-```json
-{
-  "_id": "6a3d2...",
-  "categoria": "Berlina",
-  "marca": "BMW",
-  "modelo": "Serie 3",
-  "descripcion": "El BMW Serie 3 es un sedán deportivo que combina rendimiento, lujo y tecnología avanzada. Con su diseño elegante y dinámico, ofrece una experiencia de conducción emocionante y confortable.",
-  "foto": "https://picsum.photos/seed/vehiculo-2/200/150",
-  "anio": 2023,
-  "precio": 41200,
-  "combustible": "Hibrido",
-  "kilometraje": 0,
-  "__v": 0,
-  "createdAt": "2026-06-25T13:07:23.124Z",
-  "updatedAt": "2026-06-25T13:07:23.124Z"
-}
-```
+3. Error de token
 
-status: 404 Not Found
+- Causa: falta header Authorization o token invalido.
+- Solucion: enviar Bearer TU_TOKEN.
 
-```json
-{
-  "error": "Vehículo no encontrado"
-}
-```
+4. Error de validacion al crear vehiculo
+
+- Causa: faltan campos obligatorios o tipos invalidos.
+- Solucion: revisar payload, especialmente foto, anio, precio y kilometraje.
+
+## Estado actual del proyecto
+
+- API funcional para auth y vehiculos.
+- Control de permisos admin activo para escritura de vehiculos.
+- Lista para ejecucion local y deploy en Render.
