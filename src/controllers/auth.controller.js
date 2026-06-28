@@ -2,6 +2,21 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+const isValidPassword = (password) => {
+  return password.length >= 6;
+}
+
+const getToken = (user) => {
+  return jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+}
+
 export const register = async (req, res) => {
   try {
     const { name, email } = req.body;
@@ -11,12 +26,11 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Faltan campos obligatorios" });
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({ message: "Correo electrónico inválido" });
     }
 
-    if (password.length < 6) {
+    if (!isValidPassword(password)) {
       return res
         .status(400)
         .json({ message: "La contraseña debe tener al menos 6 caracteres" });
@@ -59,12 +73,11 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Faltan campos obligatorios" });
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({ message: "Correo electrónico inválido" });
     }
 
-    if (password.length < 6) {
+    if (!isValidPassword(password)) {
       return res
         .status(400)
         .json({ message: "La contraseña debe tener al menos 6 caracteres" });
@@ -77,9 +90,7 @@ export const login = async (req, res) => {
         .json({ message: "Correo electrónico o contraseña incorrectos" });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = getToken(user);
 
     res.json({
       message: "Inicio de sesión exitoso",
