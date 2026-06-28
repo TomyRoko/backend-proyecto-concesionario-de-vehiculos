@@ -5,17 +5,17 @@ import jwt from "jsonwebtoken";
 const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
-}
+};
 
 const isValidPassword = (password) => {
   return password.length >= 6;
-}
+};
 
 const getToken = (user) => {
   return jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
-}
+};
 
 export const register = async (req, res) => {
   try {
@@ -83,8 +83,14 @@ export const login = async (req, res) => {
         .json({ message: "La contraseña debe tener al menos 6 caracteres" });
     }
     const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Correo electrónico o contraseña incorrectos" });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!user || !isPasswordValid) {
+    if (!isPasswordValid) {
       return res
         .status(400)
         .json({ message: "Correo electrónico o contraseña incorrectos" });
