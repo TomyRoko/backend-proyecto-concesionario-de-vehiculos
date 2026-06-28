@@ -8,6 +8,7 @@ import connectDB from "./src/config/db.js";
 connectDB();
 
 import express from "express";
+import cors from "cors";
 
 import vehiculoRoutes from "./src/routes/vehiculo.router.js";
 
@@ -16,6 +17,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
+app.use(cors());
+
 app.get("/", (req, res) => {
   res.json({ message: "Bienvenido a la API de concesionario de vehículos" });
 });

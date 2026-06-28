@@ -1,5 +1,11 @@
 # backend-proyecto-concesionario-de-vehiculos - Tzvetomir Vesselinov Dochev
 
+## Seeders
+
+```bash
+npm run seed
+```
+
 ## Instalación
 
 1. Clona el repositorio
@@ -10,7 +16,7 @@ git clone <repositori_url>
 
 2. Navega al directorio del proyecto
 
-```bash
+1bash
 cd backend-proyecto-concesionario-de-vehiculos
 ```
 
