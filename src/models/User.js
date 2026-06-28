@@ -20,6 +20,10 @@ const userSchema = new moongose.Schema(
       required: true,
       minlength: 6,
     },
+    admin: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );
